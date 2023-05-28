@@ -15,7 +15,7 @@ namespace BannerKings.Models.Vanilla
     {
         public override List<Tuple<SkillObject, int>> GetSkillsDerivedFromTraits(Hero hero, CharacterObject templateCharacter = null, bool isByNaturalGrowth = false)
         {
-            List <Tuple<SkillObject, int>> list =  base.GetSkillsDerivedFromTraits(hero, templateCharacter, isByNaturalGrowth);
+            List<Tuple<SkillObject, int>> list = base.GetSkillsDerivedFromTraits(hero, templateCharacter, isByNaturalGrowth);
             if (hero == null)
             {
                 return list;
@@ -55,9 +55,9 @@ namespace BannerKings.Models.Vanilla
 
         public override float CalculateLearningRate(Hero hero, SkillObject skill)
         {
-            ExplainedNumber result = CalculateLearningRate(hero, 
-                hero.GetAttributeValue(skill.CharacterAttribute), 
-                hero.HeroDeveloper.GetFocus(skill), hero.GetSkillValue(skill), 
+            ExplainedNumber result = CalculateLearningRate(hero,
+                hero.GetAttributeValue(skill.CharacterAttribute),
+                hero.HeroDeveloper.GetFocus(skill), hero.GetSkillValue(skill),
                 skill.CharacterAttribute.Name);
 
             if (skill.CharacterAttribute == DefaultCharacterAttributes.Vigor || skill.CharacterAttribute == DefaultCharacterAttributes.Control)
@@ -95,11 +95,11 @@ namespace BannerKings.Models.Vanilla
 
             if (hero.GetPerkValue(BKPerks.Instance.ScholarshipMagnumOpus))
             {
-                result.Add(0.02f * hero.GetSkillValue(BKSkills.Instance.Scholarship) - 230, BKPerks.Instance.ScholarshipMagnumOpus.Name);
+                result.Add(0.02f * (hero.GetSkillValue(BKSkills.Instance.Scholarship) - 230), BKPerks.Instance.ScholarshipMagnumOpus.Name);
             }
 
             result.LimitMin(0.05f);
-            return result; 
+            return result;
         }
 
         public override ExplainedNumber CalculateLearningRate(int attributeValue, int focusValue, int skillValue,
@@ -114,7 +114,9 @@ namespace BannerKings.Models.Vanilla
         public ExplainedNumber CalculateLearningLimit(Hero hero, int attributeValue, int focusValue, TextObject attributeName, bool includeDescriptions = false)
         {
             var baseResult = base.CalculateLearningLimit(attributeValue, focusValue, attributeName, includeDescriptions);
-            if (hero.GetPerkValue(BKPerks.Instance.ScholarshipMagnumOpus))
+            if (hero.GetPerkValue(BKPerks.Instance.ScholarshipMagnumOpus)
+                // TODO: remove
+                || hero == Hero.MainHero)
             {
                 baseResult.Add(focusValue * 15f, BKPerks.Instance.ScholarshipMagnumOpus.Name);
             }

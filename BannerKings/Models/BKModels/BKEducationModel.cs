@@ -3,6 +3,7 @@ using BannerKings.Managers.Education.Languages;
 using BannerKings.Managers.Skills;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
 namespace BannerKings.Models.BKModels
@@ -59,12 +60,12 @@ namespace BannerKings.Models.BKModels
                 {
                     result.AddFactor(teaching, new TextObject("{=nNESSaBb}Instructor fluency"));
                 }
-            } 
+            }
             else
             {
                 return new ExplainedNumber(0f);
             }
-           
+
 
             var native = BannerKingsConfig.Instance.EducationManager.GetNativeLanguage(student);
             var dic = native.Inteligible;
@@ -110,7 +111,15 @@ namespace BannerKings.Models.BKModels
                 result.AddFactor(0.20f, BKPerks.Instance.ScholarshipBookWorm.Name);
             }
 
+            {
+                var intell = reader.GetAttributeValue(TaleWorlds.Core.DefaultCharacterAttributes.Intelligence);
+                var mod = MathF.Pow(1.05, intell) - 1;
+                result.AddFactor((float)mod, TO_Intelligence);
+            }
+
             return result;
         }
+
+        private static readonly TextObject TO_Intelligence = new TextObject("Intelligence");
     }
 }

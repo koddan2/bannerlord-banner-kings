@@ -445,12 +445,17 @@ namespace BannerKings.Behaviours
                             GameMenu.SwitchToMenu("bannerkings_actions");
                         }
 
-                        main.AddSkillXp(BKSkills.Instance.Scholarship, 20f);
+                        var intell = Hero.MainHero.GetAttributeValue(DefaultCharacterAttributes.Intelligence);
+                        var baseXp = 10f;
+                        var xpMod = MathF.Pow(1.5d, intell);
+                        float xp = (float)(baseXp * xpMod);
+                        main.AddSkillXp(BKSkills.Instance.Scholarship, xp);
                         GiveGoldAction.ApplyBetweenCharacters(Hero.MainHero, seller, cost);
 
                         InformationManager.DisplayMessage(new InformationMessage(
-                            new TextObject("{=ArMJ9nUV}You have improved your {SKILL} skill during your current action.")
+                            new TextObject("{=ArMJ9nUV}You have improved your {SKILL} ({XPAMOUNT}) skill during your current action.")
                                 .SetTextVariable("SKILL", BKSkills.Instance.Scholarship.Name)
+                                .SetTextVariable("XPAMOUNT", xp.ToString())
                                 .ToString()));
                     }
                     else
