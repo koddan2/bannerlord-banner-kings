@@ -36,6 +36,15 @@ namespace BannerKings.Models.Vanilla
 
             if (leader != null)
             {
+
+                int countRoster = 1;
+                if (party.MemberRoster != null)
+                {
+                    countRoster = party.MemberRoster.Count;
+                }
+                // each dude eats at least 100 grams per day.
+                result.LimitMax((float)-0.01 * countRoster);
+
                 var data = BannerKingsConfig.Instance.EducationManager.GetHeroEducation(leader);
                 var faceTerrainType = Campaign.Current.MapSceneWrapper.GetFaceTerrainType(party.CurrentNavigationFace);
 
@@ -64,7 +73,6 @@ namespace BannerKings.Models.Vanilla
                     }
                 }
             }
-
 
             return result;
         }
