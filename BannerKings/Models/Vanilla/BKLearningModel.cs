@@ -122,6 +122,8 @@ namespace BannerKings.Models.Vanilla
                 baseResult.Add(focusValue * 15f, BKPerks.Instance.ScholarshipMagnumOpus.Name);
             }
 
+            var wisdom = hero.GetAttributeValue(BKAttributes.Instance.Wisdom);
+            baseResult.Add(wisdom * 2, BKAttributes.Instance.Wisdom.Name);
 
             return baseResult;
         }
