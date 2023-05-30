@@ -116,7 +116,8 @@ namespace BannerKings.Models.Vanilla
             var baseResult = base.CalculateLearningLimit(attributeValue, focusValue, attributeName, includeDescriptions);
             if (hero.GetPerkValue(BKPerks.Instance.ScholarshipMagnumOpus)
                 // TODO: remove
-                || hero == Hero.MainHero)
+                //|| hero == Hero.MainHero
+                )
             {
                 baseResult.Add(focusValue * 15f, BKPerks.Instance.ScholarshipMagnumOpus.Name);
             }
