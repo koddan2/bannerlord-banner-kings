@@ -521,7 +521,7 @@ namespace BannerKings.Behaviours
         {
             if (!hero.GetPerkValue(BKPerks.Instance.ScholarshipBedTimeStory))
             {
-                return;
+                //return;
             }
 
             var skillObjects = Game.Current.ObjectManager.GetObjectTypeList<SkillObject>();
