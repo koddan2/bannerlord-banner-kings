@@ -23,8 +23,8 @@
 	
 	<MBPartyTemplate id="bandits_caravan_robbers" >
 		<stacks>
-		  <PartyTemplateStack min_value="2" max_value="18" troop="NPCCharacter.mounted_ransacker" />
-		  <PartyTemplateStack min_value="2" max_value="18" troop="NPCCharacter.mounted_pillager" />
+		  <PartyTemplateStack min_value="4" max_value="28" troop="NPCCharacter.mounted_ransacker" />
+		  <PartyTemplateStack min_value="4" max_value="28" troop="NPCCharacter.mounted_pillager" />
 		</stacks>
     </MBPartyTemplate>
 	
