@@ -6,11 +6,16 @@ using BannerKings.Settings;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.Core;
+using TaleWorlds.Library;
+using TaleWorlds.Localization;
 
 namespace BannerKings.Models.Vanilla
 {
     public class BKPartySpeedModel : DefaultPartySpeedCalculatingModel
     {
+        private static readonly TextObject TO_ScoutingExpertise = new TextObject("Scouting expertise");
+
         public override ExplainedNumber CalculateFinalSpeed(MobileParty mobileParty, ExplainedNumber finalSpeed)
         {
             var baseResult = base.CalculateFinalSpeed(mobileParty, finalSpeed);
@@ -52,7 +57,7 @@ namespace BannerKings.Models.Vanilla
                         }
 
                         baseResult.AddFactor(count / mobileParty.MemberRoster.TotalManCount * 0.1f, data.Lifestyle.Name);
-                    }   
+                    }
                     else if (data.Lifestyle.Equals(DefaultLifestyles.Instance.Varyag))
                     {
                         var count = 0;
@@ -66,7 +71,7 @@ namespace BannerKings.Models.Vanilla
 
                         baseResult.AddFactor(count / mobileParty.MemberRoster.TotalManCount * 0.08f, data.Lifestyle.Name);
                     }
-                } 
+                }
             }
 
             if (mobileParty.IsCaravan && mobileParty.Owner != null)
@@ -87,6 +92,25 @@ namespace BannerKings.Models.Vanilla
             if (BannerKingsSettings.Instance.SlowerParties > 0f)
             {
                 baseResult.AddFactor(-BannerKingsSettings.Instance.SlowerParties, new TaleWorlds.Localization.TextObject("{=OohdenyR}Slower Parties setting"));
+            }
+
+            if (mobileParty != null)
+            {
+                var holder = mobileParty.GetEffectiveRoleHolder(SkillEffect.PerkRole.Scout);
+                if (holder == null)
+                {
+                    holder = mobileParty.LeaderHero;
+                }
+                if (holder != null)
+                {
+                    var value = holder.GetSkillValue(DefaultSkills.Scouting);
+                    if (value > 0)
+                    {
+                        var effect = ((float)value) / 300f;
+                        effect = MathF.Clamp(effect, 0f, 1.5f);
+                        baseResult.Add(effect, TO_ScoutingExpertise);
+                    }
+                }
             }
 
             return baseResult;
