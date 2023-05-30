@@ -502,7 +502,7 @@ namespace BannerKings.Behaviours
                 delegate (List<InquiryElement> selectedOptions)
                 {
                     var book = (BookType)selectedOptions.First().Identifier;
-                    Hero.MainHero.ChangeHeroGold(-book.Item.Value * 1000);
+                    Hero.MainHero.ChangeHeroGold(-book.Item.Value * (int)1);
                     Hero.MainHero.PartyBelongedTo.ItemRoster.AddToCounts(book.Item, 1);
                 },
                 null,

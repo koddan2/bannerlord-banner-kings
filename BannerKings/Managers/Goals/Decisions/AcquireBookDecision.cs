@@ -55,7 +55,7 @@ namespace BannerKings.Managers.Goals.Decisions
             {
                 var item = element.EquipmentElement.Item;
                 var book = allBooks.FirstOrDefault(x => x.Item == element.EquipmentElement.Item);
-                var price = book.Item.Value * 1000;
+                var price = book.Item.Value * (int)1;
 
                 var hint = $"{book.Description}";
 
@@ -97,7 +97,7 @@ namespace BannerKings.Managers.Goals.Decisions
         internal override void ApplyGoal()
         {
             var fulfiller = GetFulfiller();
-            fulfiller.ChangeHeroGold(-book.Item.Value * 1000);
+            fulfiller.ChangeHeroGold(-book.Item.Value * (int)1);
             fulfiller.PartyBelongedTo.ItemRoster.AddToCounts(book.Item, 1);
         }
 
