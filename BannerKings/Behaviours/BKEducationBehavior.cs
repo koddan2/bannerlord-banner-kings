@@ -146,6 +146,9 @@ namespace BannerKings.Behaviours
             BannerKingsConfig.Instance.EducationManager.UpdateHeroData(hero);
             ApplyScholarshipBedTimeStoryEffect(hero);
 
+            ApplyGenericTutoring(hero);
+
+            MaybeTryFixNakedHeros(hero);
 
             if (hero.IsNotable || hero.IsLord)
             {
@@ -250,7 +253,7 @@ namespace BannerKings.Behaviours
 
                         currentEducation.AddLanguageWithProgress(tuple.Key, tuple.Value);
                     }
-                   
+
                 }
                 return;
             }
@@ -348,12 +351,12 @@ namespace BannerKings.Behaviours
 
         private int DesiredSellerCount()
         {
-            return (int) (Town.AllTowns.Count / 15f);
+            return (int)(Town.AllTowns.Count / 15f);
         }
 
         private void OnGameLoaded(CampaignGameStarter campaignGameStarter)
         {
-           
+
         }
 
         private void OnSessionLaunched(CampaignGameStarter campaignGameStarter)
@@ -381,21 +384,21 @@ namespace BannerKings.Behaviours
                 null);
 
             starter.AddDialogLine("book_seller_topics",
-                "book_seller_topics", 
+                "book_seller_topics",
                 "book_seller_scholarly_questions",
                 "{=L0MesNHP}Surely, {PLAYER.NAME}. What would you like to learn about?",
                 IsBookSeller,
                 null);
 
-            starter.AddPlayerLine("book_seller_scholarly_questions", 
-                "book_seller_scholarly_questions", 
+            starter.AddPlayerLine("book_seller_scholarly_questions",
+                "book_seller_scholarly_questions",
                 "book_seller_topic_books",
                 "{=UGvR5Ni8}How can make use of books?",
                 null,
                 null);
 
-            starter.AddPlayerLine("book_seller_scholarly_questions", 
-                "book_seller_scholarly_questions", 
+            starter.AddPlayerLine("book_seller_scholarly_questions",
+                "book_seller_scholarly_questions",
                 "book_seller_topic_languages",
                 "{=Fcnbhv1b}How can I make use of languages?",
                 null,
@@ -458,7 +461,7 @@ namespace BannerKings.Behaviours
                 BannerKingsConfig.Instance.EducationManager.GetNativeLanguage(Hero.OneToOneConversationHero);
             var relation = 6 * BannerKingsConfig.Instance.EducationManager.GetHeroEducation(Hero.MainHero)
                 .GetLanguageFluency(npcLanguage);
-            ChangeRelationAction.ApplyPlayerRelation(Hero.OneToOneConversationHero, (int) relation, false);
+            ChangeRelationAction.ApplyPlayerRelation(Hero.OneToOneConversationHero, (int)relation, false);
         }
 
         private void OnBuyBookConsequence()
@@ -513,15 +516,78 @@ namespace BannerKings.Behaviours
         {
             return Hero.OneToOneConversationHero != null && Hero.OneToOneConversationHero.IsSpecial &&
                 Hero.OneToOneConversationHero.CharacterObject != null &&
-                Hero.OneToOneConversationHero.CharacterObject.OriginalCharacter != null && 
+                Hero.OneToOneConversationHero.CharacterObject.OriginalCharacter != null &&
                 Hero.OneToOneConversationHero.CharacterObject.OriginalCharacter.StringId.Contains("bannerkings_bookseller");
+        }
+
+        private static SkillObject[] AllSkills =
+        {
+            DefaultSkills.Tactics,
+            DefaultSkills.Scouting,
+            DefaultSkills.Athletics,
+            DefaultSkills.Charm,
+            DefaultSkills.Steward,
+            DefaultSkills.Riding,
+            DefaultSkills.Bow,
+            DefaultSkills.Crafting,
+            DefaultSkills.Crossbow,
+            DefaultSkills.Engineering,
+            DefaultSkills.Leadership,
+            DefaultSkills.Medicine,
+            DefaultSkills.OneHanded,
+            DefaultSkills.Polearm,
+            DefaultSkills.Roguery,
+            DefaultSkills.Throwing,
+            DefaultSkills.Trade,
+            DefaultSkills.TwoHanded,
+            BKSkills.Instance.Lordship,
+            BKSkills.Instance.Theology,
+            BKSkills.Instance.Scholarship,
+        };
+
+
+        private static int fixCounter = 0;
+        private static void MaybeTryFixNakedHeros(Hero hero)
+        {
+            if (hero == null) return;
+            if (hero.BattleEquipment?.GetEquipmentFromSlot(EquipmentIndex.Body).IsEmpty is true)
+            {
+                System.IO.File.AppendAllText(@"c:\temp\bjorn-bannerlord.txt", $"Fixing hero({++fixCounter}): {hero.Name}{Environment.NewLine}");
+                var settlement = (hero.HomeSettlement ?? hero.LastKnownClosestSettlement ?? hero.BornSettlement);
+                if (settlement == null) return;
+                var cult = settlement.Culture;
+                var templates = cult.LordTemplates;
+                var templ = templates.GetRandomElement();
+                hero.BattleEquipment.FillFrom(templ.Equipment);
+                System.IO.File.AppendAllText(@"c:\temp\bjorn-bannerlord.txt", $"Hero({fixCounter}) fixed: {hero.Name}{Environment.NewLine}");
+            }
+        }
+
+        private static void ApplyGenericTutoring(Hero hero)
+        {
+            var companions = hero.CompanionsInParty;
+            if (companions == null || !companions.Any())
+            {
+                return;
+            }
+            var topThreeSkills = AllSkills.OrderByDescending(sk => hero.GetSkillValue(sk))
+                .Take(3).ToArray();
+
+            if (topThreeSkills.Any())
+            {
+                var skill = topThreeSkills[MBRandom.RandomInt(0, topThreeSkills.Length - 1)];
+                foreach (var companion in companions)
+                {
+                    companion.AddSkillXp(skill, MBRandom.RandomFloatRanged(1, 4));
+                }
+            }
         }
 
         private static void ApplyScholarshipBedTimeStoryEffect(Hero hero)
         {
             if (!hero.GetPerkValue(BKPerks.Instance.ScholarshipBedTimeStory))
             {
-                //return;
+                return;
             }
 
             var skillObjects = Game.Current.ObjectManager.GetObjectTypeList<SkillObject>();
