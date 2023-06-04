@@ -57,7 +57,7 @@ namespace BannerKings.Models.Vanilla
                     result.Add(cattleHeads * 0.06f, BKPerks.Instance.KheshigRaider.Name);
                 }
 
-                if (party.Army != null && party.SiegeEvent != null)
+                if (party.Army != null && party.SiegeEvent != null && party.Army?.LeaderParty?.LeaderHero is not null)
                 {
                     var armyLeader = party.Army.LeaderParty.LeaderHero;
                     var armyEducation = BannerKingsConfig.Instance.EducationManager.GetHeroEducation(armyLeader);
