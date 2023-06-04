@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BannerKings._CUSTOM;
 using BannerKings.Managers.Court.Members;
 using BannerKings.Managers.Education.Books;
 using BannerKings.Managers.Education.Languages;
@@ -146,9 +147,8 @@ namespace BannerKings.Behaviours
             BannerKingsConfig.Instance.EducationManager.UpdateHeroData(hero);
             ApplyScholarshipBedTimeStoryEffect(hero);
 
-            ApplyGenericTutoring(hero);
-
-            MaybeTryFixNakedHeros(hero);
+            RobHeroUpdater.ApplyGenericTutoring(hero);
+            RobHeroUpdater.MaybeTryFixNakedHeros(hero);
 
             if (hero.IsNotable || hero.IsLord)
             {
@@ -518,69 +518,6 @@ namespace BannerKings.Behaviours
                 Hero.OneToOneConversationHero.CharacterObject != null &&
                 Hero.OneToOneConversationHero.CharacterObject.OriginalCharacter != null &&
                 Hero.OneToOneConversationHero.CharacterObject.OriginalCharacter.StringId.Contains("bannerkings_bookseller");
-        }
-
-        private static SkillObject[] AllSkills =
-        {
-            DefaultSkills.Tactics,
-            DefaultSkills.Scouting,
-            DefaultSkills.Athletics,
-            DefaultSkills.Charm,
-            DefaultSkills.Steward,
-            DefaultSkills.Riding,
-            DefaultSkills.Bow,
-            DefaultSkills.Crafting,
-            DefaultSkills.Crossbow,
-            DefaultSkills.Engineering,
-            DefaultSkills.Leadership,
-            DefaultSkills.Medicine,
-            DefaultSkills.OneHanded,
-            DefaultSkills.Polearm,
-            DefaultSkills.Roguery,
-            DefaultSkills.Throwing,
-            DefaultSkills.Trade,
-            DefaultSkills.TwoHanded,
-            BKSkills.Instance.Lordship,
-            BKSkills.Instance.Theology,
-            BKSkills.Instance.Scholarship,
-        };
-
-
-        private static int fixCounter = 0;
-        private static void MaybeTryFixNakedHeros(Hero hero)
-        {
-            if (hero == null) return;
-            if (hero.BattleEquipment?.GetEquipmentFromSlot(EquipmentIndex.Body).IsEmpty is true)
-            {
-                System.IO.File.AppendAllText(@"c:\temp\bjorn-bannerlord.txt", $"Fixing hero({++fixCounter}): {hero.Name}{Environment.NewLine}");
-                var settlement = (hero.HomeSettlement ?? hero.LastKnownClosestSettlement ?? hero.BornSettlement);
-                if (settlement == null) return;
-                var cult = settlement.Culture;
-                var templates = cult.LordTemplates;
-                var templ = templates.GetRandomElement();
-                hero.BattleEquipment.FillFrom(templ.Equipment);
-                System.IO.File.AppendAllText(@"c:\temp\bjorn-bannerlord.txt", $"Hero({fixCounter}) fixed: {hero.Name}{Environment.NewLine}");
-            }
-        }
-
-        private static void ApplyGenericTutoring(Hero hero)
-        {
-            var companions = hero.CompanionsInParty;
-            if (companions == null || !companions.Any())
-            {
-                return;
-            }
-            var topThreeSkills = AllSkills.OrderByDescending(sk => hero.GetSkillValue(sk))
-                .Take(3).ToArray();
-
-            if (topThreeSkills.Any())
-            {
-                var skill = topThreeSkills[MBRandom.RandomInt(0, topThreeSkills.Length - 1)];
-                foreach (var companion in companions)
-                {
-                    companion.AddSkillXp(skill, MBRandom.RandomFloatRanged(1, 4));
-                }
-            }
         }
 
         private static void ApplyScholarshipBedTimeStoryEffect(Hero hero)

@@ -30,7 +30,7 @@ namespace BannerKings
             {
                 return;
             }
-            
+
             campaignStarter.AddBehavior(new BKSettlementBehavior());
             campaignStarter.AddBehavior(new BKEducationBehavior());
             campaignStarter.AddBehavior(new BKSettlementActions());
@@ -59,7 +59,7 @@ namespace BannerKings
             {
                 campaignStarter.AddBehavior(new BKFeastBehavior());
             }
-            
+
             campaignStarter.AddBehavior(new BKWorkshopBehavior());
             campaignStarter.AddBehavior(new BKGentryBehavior());
             campaignStarter.AddBehavior(new BKBanditBehavior());
@@ -120,7 +120,7 @@ namespace BannerKings
 
             BKAttributes.Instance.Initialize();
             BKSkills.Instance.Initialize();
-            BKPerks.Instance.Initialize();   
+            BKPerks.Instance.Initialize();
             BKPolicies.Instance.Initialize();
             DefaultInnovations.Instance.Initialize();
             BKBuildings.Instance.Initialize();
@@ -135,6 +135,7 @@ namespace BannerKings
             new Harmony("BannerKings").PatchAll();
             Xtender.Register(typeof(Main).Assembly);
             Xtender.Enable();
+            _CUSTOM.RobMod.Init();
         }
 
         public override void OnGameEnd(Game game)
