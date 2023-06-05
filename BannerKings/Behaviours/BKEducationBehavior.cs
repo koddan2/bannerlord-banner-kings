@@ -147,8 +147,8 @@ namespace BannerKings.Behaviours
             BannerKingsConfig.Instance.EducationManager.UpdateHeroData(hero);
             ApplyScholarshipBedTimeStoryEffect(hero);
 
-            RobHeroUpdater.ApplyGenericTutoring(hero);
-            RobHeroUpdater.MaybeTryFixNakedHeros(hero);
+            ////RobHeroUpdater.ApplyGenericTutoring(hero);
+            ////RobHeroUpdater.MaybeTryFixNakedHeros(hero);
 
             if (hero.IsNotable || hero.IsLord)
             {
