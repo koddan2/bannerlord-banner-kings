@@ -47,6 +47,7 @@ namespace BannerKings._CUSTOM
         ////private static readonly HashSet<string> heroChecked = new();
         public static void MaybeTryFixNakedHeros(Hero hero)
         {
+            RobNullFixer.FixNullRoster();
             ////RobNullFixer.FixNullSettlementLastAttackerParty();
             if (hero == null) return;
             if (hero.Clan == null) return;
@@ -90,7 +91,7 @@ namespace BannerKings._CUSTOM
             //    //hero.BattleEquipment[EquipmentIndex.Head].Clear();
             //    SetBattleEquipment(hero, EquipmentIndex.Head);
             //}
-            if (hero.Clan != null && !hero.IsPlayer() && !hero.IsPlayerCompanion && !hero.IsFactionLeader)
+            if (hero.Clan != null && Hero.MainHero.Clan != hero.Clan && !hero.IsFactionLeader)
             {
                 // 0.1% chance
                 const float chancePerDayPerSlot = 0.001f;
@@ -106,7 +107,7 @@ namespace BannerKings._CUSTOM
                     MaybeChangeGear(hero, EquipmentIndex.Cape);
 
                 if (MBRandom.RandomFloat < chancePerDayPerSlot)
-                    MaybeChangeGear(hero, EquipmentIndex.Weapon2);
+                    MaybeChangeGear(hero, EquipmentIndex.NumAllWeaponSlots);
             }
         }
 
@@ -119,24 +120,49 @@ namespace BannerKings._CUSTOM
             if (cult == null) return;
             if (hero.BattleEquipment == null) return;
 
-            var current = hero.BattleEquipment[equipmentIndex];
-            ItemTiers minTier = ItemTiers.Tier5;
+            ItemTiers minTier = ItemTiers.Tier4;
 
             var initpool = GetBattleEquipmentPool(cult);
+            var iswep = false;
+
+            if (equipmentIndex == EquipmentIndex.NumAllWeaponSlots)
+            {
+                iswep = true;
+                equipmentIndex = EquipmentIndex.Weapon0;
+            }
 
             var pool = initpool?
-                .WhereQ(it => it != null && !it.IsCivilian && !it[equipmentIndex].IsEmpty && it[equipmentIndex].Item.Tier >= minTier)
+                .WhereQ(it => it != null && (iswep || !it.IsCivilian) && !it[equipmentIndex].IsEmpty && it[equipmentIndex].Item.Tier >= minTier)
                 .ToArray();
             if (pool != null && pool.Any())
             {
-                var newGear = pool.GetRandomElement();
-                if (newGear == null || newGear[equipmentIndex].Item == null
-                    || current.Item?.Name == newGear[equipmentIndex].Item?.Name)
+                var newGear = pool[MBRandom.RandomInt(0, pool.Length)];
+                if (iswep)
                 {
-                    return;
+                    void SetEq(EquipmentIndex idx)
+                    {
+                        if (hero.BattleEquipment[idx].Item?.Name != newGear[idx].Item?.Name)
+                        {
+                            RobMod.Log($"[R813]Hero({hero.StringId}):\t[{hero.BattleEquipment[idx].Item?.Name}] -> [{newGear[idx].Item?.Name}]");
+                            hero.BattleEquipment[idx] = newGear[idx];
+                        }
+                    }
+                    SetEq(EquipmentIndex.Weapon0);
+                    SetEq(EquipmentIndex.Weapon1);
+                    SetEq(EquipmentIndex.Weapon2);
+                    SetEq(EquipmentIndex.Weapon3);
                 }
-                hero.BattleEquipment[equipmentIndex] = newGear[equipmentIndex];
-                RobMod.Log($"[R813]Hero({hero.StringId}):\t[{current.Item?.Name}] -> [{newGear[equipmentIndex].Item?.Name}]");
+                else
+                {
+                    var current = hero.BattleEquipment[equipmentIndex];
+                    if (newGear == null || newGear[equipmentIndex].Item == null
+                        || current.Item?.Name == newGear[equipmentIndex].Item?.Name)
+                    {
+                        return;
+                    }
+                    hero.BattleEquipment[equipmentIndex] = newGear[equipmentIndex];
+                    RobMod.Log($"[R813]Hero({hero.StringId}):\t[{current.Item?.Name}] -> [{newGear[equipmentIndex].Item?.Name}]");
+                }
             }
         }
 

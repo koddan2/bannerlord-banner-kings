@@ -106,8 +106,8 @@ namespace BannerKings.Models.Vanilla
                     var value = holder.GetSkillValue(DefaultSkills.Scouting);
                     if (value > 0)
                     {
-                        var effect = ((float)value) / 450f;
-                        effect = MathF.Clamp(effect, 0f, 1.5f);
+                        var effect = ((float)value) / 600f;
+                        effect = MathF.Clamp(effect, 0f, 1f);
                         baseResult.Add(effect, TO_ScoutingExpertise);
                     }
                 }
