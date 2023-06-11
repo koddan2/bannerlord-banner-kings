@@ -56,7 +56,7 @@ namespace BannerKings.Patches
             [HarmonyPatch("UpdateVolunteersOfNotablesInSettlement", MethodType.Normal)]
             private static bool UpdateVolunteersPrefix(Settlement settlement)
             {
-                if ((settlement.Town != null && !settlement.Town.InRebelliousState && settlement.Notables != null) || 
+                if ((settlement.Town != null && !settlement.Town.InRebelliousState && settlement.Notables != null) ||
                     (settlement.IsVillage && !settlement.Village.Bound.Town.InRebelliousState))
                 {
                     var data = BannerKingsConfig.Instance.PopulationManager.GetPopData(settlement);
@@ -79,7 +79,8 @@ namespace BannerKings.Patches
 
                             for (int i = 0; i < hero.VolunteerTypes.Length; i++)
                             {
-                                if (MBRandom.RandomFloat < Campaign.Current.Models.VolunteerModel.GetDailyVolunteerProductionProbability(hero, i, settlement))
+                                if (MBRandom.RandomFloat < Campaign.Current.Models.VolunteerModel.GetDailyVolunteerProductionProbability(
+                                        hero, i, settlement.IsCastle ? settlement.BoundVillages[0].Settlement : settlement))
                                 {
                                     CharacterObject characterObject = hero.VolunteerTypes[i];
                                     if (characterObject == null)
@@ -228,7 +229,7 @@ namespace BannerKings.Patches
                     }
                 }
 
-                 disabledReason = TextObject.Empty;
+                disabledReason = TextObject.Empty;
                 __result = true;
                 return false;
             }
@@ -493,7 +494,7 @@ namespace BannerKings.Patches
                 if (title != null)
                 {
                     var deJure = title.deJure;
-                    var king = ((KingSelectionDecisionOutcome) chosenOutcome).King;
+                    var king = ((KingSelectionDecisionOutcome)chosenOutcome).King;
                     if (deJure != king)
                     {
                         BannerKingsConfig.Instance.TitleManager.InheritTitle(deJure, king, title);
@@ -503,7 +504,7 @@ namespace BannerKings.Patches
 
             [HarmonyPrefix]
             [HarmonyPatch("CalculateMeritOfOutcomeForClan", MethodType.Normal)]
-            private static bool CalculateMeritOfOutcomeForClanPrefix(KingSelectionKingdomDecision __instance, Clan clan, 
+            private static bool CalculateMeritOfOutcomeForClanPrefix(KingSelectionKingdomDecision __instance, Clan clan,
                 DecisionOutcome candidateOutcome, ref float __result)
             {
                 var title = BannerKingsConfig.Instance.TitleManager.GetSovereignTitle(__instance.Kingdom);

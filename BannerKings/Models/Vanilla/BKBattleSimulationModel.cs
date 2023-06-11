@@ -1,10 +1,12 @@
 ﻿using BannerKings.Managers.Institutions.Religions;
 using BannerKings.Managers.Skills;
+using System;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
+using TaleWorlds.Library;
 
 namespace BannerKings.Models.Vanilla
 {
@@ -21,7 +23,7 @@ namespace BannerKings.Models.Vanilla
                 if (data.HasPerk(BKPerks.Instance.SiegePlanner) && strikerParty.SiegeEvent != null &&
                     strikerTroop.IsInfantry && strikerTroop.IsRanged)
                 {
-                    result = (int) (result * 1.15f);
+                    result = (int)(result * 1.15f);
                 }
 
                 if (BannerKingsConfig.Instance.ReligionsManager.HasBlessing(leader, DefaultDivinities.Instance.AmraSecondary1))
@@ -34,6 +36,45 @@ namespace BannerKings.Models.Vanilla
                     }
                 }
             }
+
+            if (battle.IsSiegeAssault)
+            {
+                var siegeFactor = 1f;
+                if (battle.MapEventSettlement != null)
+                {
+                    siegeFactor = this.GetSettlementAdvantage(battle.MapEventSettlement) / 10;
+                }
+                siegeFactor = MBMath.ClampFloat(siegeFactor, 0.1f, 0.9f);
+                if (strikerParty.MapEventSide == battle.AttackerSide)
+                {
+                    result = (int)(result * (1f - siegeFactor));
+                }
+                else if (strikerParty.MapEventSide == battle.DefenderSide)
+                {
+                    result = (int)(result * (1f + siegeFactor));
+                }
+            }
+
+            {
+                var extraStrikerAdvantage = (strikerParty.LeaderHero?.GetSkillValue(DefaultSkills.Tactics) ?? 0)
+                    - (struckParty.LeaderHero?.GetSkillValue(DefaultSkills.Tactics) ?? 0);
+                if (extraStrikerAdvantage != 0)
+                {
+                    var extraFactor = extraStrikerAdvantage / 600f;
+                    result = (int)(result * (1 + extraFactor));
+                }
+            }
+
+            {
+                var extraStrikerAdvantage = (strikerTroop.Tier - struckTroop.Tier) * 3;
+                if (extraStrikerAdvantage != 0)
+                {
+                    var extraFactor = extraStrikerAdvantage / 100f;
+                    result = (int)(result * (1 + extraFactor));
+                }
+            }
+
+            ////result = Math.Max(1, result);
 
             return result;
         }

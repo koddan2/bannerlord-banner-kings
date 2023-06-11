@@ -205,20 +205,22 @@ namespace BannerKings.Patches
                 foreach (var hero in clan.Lords)
                     foreach (var caravanPartyComponent in hero.OwnedCaravans)
                         list.Add(caravanPartyComponent.MobileParty);
-                        
+
                 foreach (var hero2 in clan.Companions)
                     foreach (var caravanPartyComponent2 in hero2.OwnedCaravans)
-                        list.Add(caravanPartyComponent2.MobileParty);     
+                        list.Add(caravanPartyComponent2.MobileParty);
 
                 foreach (var warPartyComponent in clan.WarPartyComponents)
                     list.Add(warPartyComponent.MobileParty);
-                    
+
                 foreach (Town town in clan.Fiefs)
                     if (town.GarrisonParty != null && town.GarrisonParty.IsActive)
                         list.Add(town.GarrisonParty);
-  
+
                 foreach (var party in list)
                 {
+                    if (party == mainParty) continue;
+
                     int budget = clan.Gold + (int)goldChange.ResultNumber + (int)goldChange.ResultNumber;
                     object[] array = { party, budget, applyWithdrawals };
                     int expense = (int)calculatePartyWageFunction.Invoke(model, array);
@@ -392,7 +394,7 @@ namespace BannerKings.Patches
             [HarmonyPostfix]
             [HarmonyPatch("GetPrice", new Type[] { typeof(EquipmentElement), typeof(MobileParty),
             typeof(bool), typeof(PartyBase)})]
-            private static void GetPricePostfix(TownMarketData __instance, ref int __result, EquipmentElement itemRosterElement, 
+            private static void GetPricePostfix(TownMarketData __instance, ref int __result, EquipmentElement itemRosterElement,
                 MobileParty tradingParty = null, bool isSelling = false, PartyBase merchantParty = null)
             {
                 var item = itemRosterElement.Item;
@@ -664,10 +666,10 @@ namespace BannerKings.Patches
 
                 return false;
             }
-            
+
             [HarmonyPostfix]
             [HarmonyPatch(methodName: "DecideBestWorkshopType", MethodType.Normal)]
-            private static void DecideBestWorkshopTypePostfix(ref WorkshopType __result, 
+            private static void DecideBestWorkshopTypePostfix(ref WorkshopType __result,
                 Settlement currentSettlement, bool atGameStart, WorkshopType workshopToExclude = null)
             {
                 if (__result != null && currentSettlement != null && currentSettlement.Town != null)
@@ -688,7 +690,7 @@ namespace BannerKings.Patches
                             list.Add(WorkshopType.Find("armorsmithy"));
                             list.Add(WorkshopType.Find("weaponsmithy"));
                             var random = list.GetRandomElement();
-                            if (currentSettlement.Town.Workshops.Any(x => x != null && x.WorkshopType != null && 
+                            if (currentSettlement.Town.Workshops.Any(x => x != null && x.WorkshopType != null &&
                             x.WorkshopType.StringId == random.StringId))
                             {
                                 __result = list.GetRandomElement();
@@ -815,7 +817,7 @@ namespace BannerKings.Patches
                         {
                             __result *= data.EconomicData.CaravanAttraction.ResultNumber;
                         }
-                        
+
                         __result -= data.EconomicData.CaravanFee(caravanParty) / 10f;
                     }
                 }
@@ -1036,7 +1038,7 @@ namespace BannerKings.Patches
                             ItemModifier modifier = null;
                             if (modifierGroup != null)
                             {
-                                modifier = modifierGroup.GetRandomModifierWithTarget(data.EconomicData.ProductionQuality.ResultNumber, 
+                                modifier = modifierGroup.GetRandomModifierWithTarget(data.EconomicData.ProductionQuality.ResultNumber,
                                     0.2f);
                             }
 
