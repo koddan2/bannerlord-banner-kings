@@ -74,6 +74,14 @@ namespace BannerKings.Models.Vanilla
                 }
             }
 
+            if (strikerParty.LeaderHero == null)
+            {
+                if (struckTroop.Tier > 4)
+                {
+                    result = (int)(result / 2);
+                }
+            }
+
             ////result = Math.Max(1, result);
 
             return result;
